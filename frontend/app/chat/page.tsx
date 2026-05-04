@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 
-const API = "http://localhost:8000/api";
+const API = "https://second-brain-production-1508.up.railway.app/api";
 
 interface Message {
   role: "user" | "assistant";

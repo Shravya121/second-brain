@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-const API = "http://localhost:8000/api";
+const API = "https://second-brain-production-1508.up.railway.app/api";
 
 export default function Graph() {
   const svgRef = useRef<SVGSVGElement>(null);
