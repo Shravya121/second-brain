@@ -6,15 +6,17 @@ class SaveItemRequest(BaseModel):
     content: str
     title: Optional[str] = None
     tags: Optional[List[str]] = []
-    source: Optional[str] = None  # url or "manual"
-
-class SavedItem(BaseModel):
-    id: Optional[str] = None
-    content: str
-    title: Optional[str] = None
-    tags: List[str] = []
     source: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    user_id: Optional[str] = "default"
 
 class AskRequest(BaseModel):
     question: str
+    user_id: Optional[str] = "default"
+
+class PushRequest(BaseModel):
+    item_id: str
+    user_id: Optional[str] = "default"
+
+class PullRequest(BaseModel):
+    database_id: str
+    user_id: Optional[str] = "default"

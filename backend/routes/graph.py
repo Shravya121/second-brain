@@ -5,26 +5,19 @@ from collections import defaultdict
 router = APIRouter()
 
 @router.get("/graph")
-async def get_graph():
-    """Return nodes + edges for the D3 knowledge graph."""
+async def get_graph(user_id: str = "default"):
     db = get_db()
-    cursor = db["items"].find({}, {"title": 1, "tags": 1, "_id": 1})
-    
+    cursor = db["items"].find({"user_id": user_id}, {"title": 1, "tags": 1, "_id": 1})
     nodes = []
     edges = []
-    tag_map = defaultdict(list)  # tag -> [item_ids]
+    tag_map = defaultdict(list)
 
     async for doc in cursor:
         item_id = str(doc["_id"])
-        nodes.append({
-            "id": item_id,
-            "label": doc.get("title", "Untitled"),
-            "type": "item"
-        })
+        nodes.append({"id": item_id, "label": doc.get("title", "Untitled"), "type": "item"})
         for tag in doc.get("tags", []):
             tag_map[tag].append(item_id)
 
-    # Add tag nodes + edges
     for tag, item_ids in tag_map.items():
         tag_node_id = f"tag:{tag}"
         nodes.append({"id": tag_node_id, "label": tag, "type": "tag"})

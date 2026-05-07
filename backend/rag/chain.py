@@ -8,13 +8,12 @@ load_dotenv()
 
 llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
-model_name="llama-3.3-70b-versatile"
+    model_name="llama-3.3-70b-versatile"
 )
 
-def answer_question(question: str) -> dict:
-    """RAG: retrieve relevant notes then answer with Groq."""
-    relevant_docs = search_similar(question, n_results=5)
-    
+def answer_question(question: str, user_id: str = "default") -> dict:
+    relevant_docs = search_similar(question, n_results=5, user_id=user_id)
+
     if not relevant_docs:
         context = "No relevant notes found in the knowledge base yet."
     else:
@@ -33,7 +32,6 @@ KNOWLEDGE BASE:
     ]
 
     response = llm.invoke(messages)
-    
     return {
         "answer": response.content,
         "sources": [d["metadata"] for d in relevant_docs]
