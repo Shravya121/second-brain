@@ -5,6 +5,8 @@ langchain-community
 langchain-groq
 langchain-core
 chromadb
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
 sentence-transformers
 python-dotenv
 pymongo
