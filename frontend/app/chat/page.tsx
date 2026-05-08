@@ -1,7 +1,8 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 
-const API = "https://second-brain-production-1508.up.railway.app/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 interface Message {
   role: "user" | "assistant";
@@ -10,6 +11,7 @@ interface Message {
 }
 
 export default function Chat() {
+  const { userId } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Hey! Ask me anything about what you've saved. I'll search your knowledge base and answer using your own notes." }
   ]);
@@ -29,7 +31,7 @@ export default function Chat() {
       const res = await fetch(`${API}/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, user_id: userId }),
       });
       const data = await res.json();
       setMessages(prev => [...prev, { role: "assistant", content: data.answer, sources: data.sources }]);
@@ -51,16 +53,16 @@ export default function Chat() {
         {messages.map((msg, i) => (
           <div key={i} className="fade-up" style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animationDelay: `${i * 0.05}s` }}>
             {msg.role === "assistant" && (
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--accent-glow)", border: "1px solid rgba(167,139,250,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", marginRight: "0.6rem", marginTop: "0.2rem", flexShrink: 0, color: "var(--accent)" }}>◎</div>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--accent-glow)", border: "1px solid rgba(248,113,113,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", marginRight: "0.6rem", marginTop: "0.2rem", flexShrink: 0, color: "var(--accent)" }}>◎</div>
             )}
             <div style={{
               maxWidth: "78%", padding: "0.85rem 1.1rem",
               borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-              background: msg.role === "user" ? "linear-gradient(135deg, var(--accent), #7c6af7)" : "var(--glass)",
+              background: msg.role === "user" ? "linear-gradient(135deg, var(--accent), #ef4444)" : "var(--glass)",
               backdropFilter: "blur(20px)",
               border: msg.role === "assistant" ? "1px solid var(--glass-border)" : "none",
               color: "var(--text-1)", fontSize: "0.9rem", lineHeight: 1.65,
-              boxShadow: msg.role === "user" ? "0 4px 20px rgba(167,139,250,0.25)" : "none",
+              boxShadow: msg.role === "user" ? "0 4px 20px rgba(248,113,113,0.25)" : "none",
             }}>
               {msg.content}
               {msg.sources && msg.sources.length > 0 && (
@@ -76,7 +78,7 @@ export default function Chat() {
         ))}
         {loading && (
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--accent-glow)", border: "1px solid rgba(167,139,250,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", color: "var(--accent)" }}>◎</div>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--accent-glow)", border: "1px solid rgba(248,113,113,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", color: "var(--accent)" }}>◎</div>
             <div className="card" style={{ padding: "0.75rem 1rem", display: "flex", gap: "4px", alignItems: "center" }}>
               {[0,1,2].map(i => (
                 <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent)", animation: "bounce 1s ease infinite", animationDelay: `${i * 0.15}s`, opacity: 0.7 }} />

@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 
-const API = "https://second-brain-production-1508.up.railway.app/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 interface Item {
   _id: string;
@@ -13,17 +14,18 @@ interface Item {
 }
 
 export default function Dashboard() {
+  const { userId, getToken } = useAuth();
   const [items, setItems] = useState<Item[]>([]);
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchItems(); }, []);
+  useEffect(() => { if (userId) fetchItems(); }, [userId]);
 
   async function fetchItems() {
     setLoading(true);
-    const res = await fetch(`${API}/items`);
+    const res = await fetch(`${API}/items?user_id=${userId}`);
     const data = await res.json();
     setItems(data);
     setLoading(false);
@@ -35,7 +37,11 @@ export default function Dashboard() {
     await fetch(`${API}/save`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content, tags: tags.split(",").map(t => t.trim()).filter(Boolean), source: "manual" }),
+      body: JSON.stringify({
+        content, user_id: userId,
+        tags: tags.split(",").map(t => t.trim()).filter(Boolean),
+        source: "manual"
+      }),
     });
     setContent(""); setTags(""); setSaving(false); fetchItems();
   }
@@ -53,10 +59,8 @@ export default function Dashboard() {
         <div className="page-subtitle">{items.length} items saved · Growing every day</div>
       </div>
 
-      <div className="card fade-up-1" style={{ marginBottom: "1.5rem", background: "rgba(167,139,250,0.04)", borderColor: "rgba(167,139,250,0.15)" }}>
-        <div style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono)", color: "var(--accent)", marginBottom: "0.75rem", letterSpacing: "0.1em" }}>
-          + NEW ENTRY
-        </div>
+      <div className="card fade-up-1" style={{ marginBottom: "1.5rem", background: "rgba(248,113,113,0.04)", borderColor: "rgba(248,113,113,0.15)" }}>
+        <div style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono)", color: "var(--accent)", marginBottom: "0.75rem", letterSpacing: "0.1em" }}>+ NEW ENTRY</div>
         <textarea className="textarea" rows={4} placeholder="Paste a note, article, idea, or URL..." value={content} onChange={e => setContent(e.target.value)} />
         <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.75rem", alignItems: "center" }}>
           <input className="input" placeholder="Tags (comma-separated)" value={tags} onChange={e => setTags(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSave()} style={{ flex: 1 }} />

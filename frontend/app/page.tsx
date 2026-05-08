@@ -9,7 +9,7 @@ export default function Home() {
         <h1 style={{
           fontSize: "3rem", fontWeight: 800, letterSpacing: "-0.05em",
           lineHeight: 1.05, marginBottom: "1.25rem",
-          background: "linear-gradient(135deg, #f0f0ff 0%, #a78bfa 50%, #60a5fa 100%)",
+          background: "linear-gradient(135deg, #f0f0ff 0%, #9228bc 50%, #e7f2f5 100%)",
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text"
         }}>
           Everything you learn,<br />always at hand.

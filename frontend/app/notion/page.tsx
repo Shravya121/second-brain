@@ -1,26 +1,28 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 
-const API = "https://second-brain-production-1508.up.railway.app/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 interface SyncStatus { total_items: number; synced_to_notion: number; unsynced: number; }
 
 export default function NotionPage() {
+  const { userId } = useAuth();
   const [status, setStatus] = useState<SyncStatus | null>(null);
   const [databaseId, setDatabaseId] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
-  useEffect(() => { fetchStatus(); }, []);
+  useEffect(() => { if (userId) fetchStatus(); }, [userId]);
 
   async function fetchStatus() {
-    try { const res = await fetch(`${API}/notion/status`); setStatus(await res.json()); } catch {}
+    try { const res = await fetch(`${API}/notion/status?user_id=${userId}`); setStatus(await res.json()); } catch {}
   }
 
   async function handlePushAll() {
     setLoading(true); setMessage(null);
     try {
-      const res = await fetch(`${API}/notion/push-all`, { method: "POST" });
+      const res = await fetch(`${API}/notion/push-all?user_id=${userId}`, { method: "POST" });
       const data = await res.json();
       setMessage({ text: `✓ Pushed ${data.pushed} items to Notion.${data.failed > 0 ? ` ${data.failed} failed.` : ""}`, type: "success" });
       fetchStatus();
@@ -32,7 +34,7 @@ export default function NotionPage() {
     if (!databaseId.trim()) { setMessage({ text: "Please enter a Database ID.", type: "error" }); return; }
     setLoading(true); setMessage(null);
     try {
-      const res = await fetch(`${API}/notion/pull`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ database_id: databaseId.trim() }) });
+      const res = await fetch(`${API}/notion/pull`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ database_id: databaseId.trim(), user_id: userId }) });
       const data = await res.json();
       setMessage({ text: `✓ Imported ${data.imported} new pages from Notion.`, type: "success" });
       fetchStatus();
@@ -50,7 +52,7 @@ export default function NotionPage() {
         <div className="page-subtitle">Push your knowledge to Notion, or import Notion pages into your Second Brain.</div>
       </div>
 
-      <div className="card fade-up-1" style={{ marginBottom: "1rem", background: "rgba(167,139,250,0.04)", borderColor: "rgba(167,139,250,0.15)" }}>
+      <div className="card fade-up-1" style={{ marginBottom: "1rem", background: "rgba(248,113,113,0.04)", borderColor: "rgba(248,113,113,0.15)" }}>
         <div style={{ fontSize: "0.68rem", fontFamily: "var(--font-mono)", color: "var(--text-3)", letterSpacing: "0.12em", marginBottom: "1.25rem" }}>SYNC STATUS</div>
         <div className="grid-3" style={{ marginBottom: "1.25rem" }}>
           {[

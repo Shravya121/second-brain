@@ -1,17 +1,22 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton, useAuth } from "@clerk/nextjs";
 
-const links = [
-  { href: "/", label: "Home", icon: "✦" },
-  { href: "/dashboard", label: "Dashboard", icon: "⊞" },
-  { href: "/chat", label: "Ask AI", icon: "◎" },
-  { href: "/graph", label: "Graph", icon: "⬡" },
-  { href: "/notion", label: "Notion Sync", icon: "↗" },
-];
+const OWNER_ID = "user_3DMG6rDEFiulH1kpI7LbIhwi6qM";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { userId } = useAuth();
+
+  const links = [
+    { href: "/", label: "Home", icon: "✦" },
+    { href: "/dashboard", label: "Dashboard", icon: "⊞" },
+    { href: "/chat", label: "Ask AI", icon: "◎" },
+    { href: "/graph", label: "Graph", icon: "⬡" },
+    ...(userId === OWNER_ID ? [{ href: "/notion", label: "Notion Sync", icon: "↗" }] : []),
+  ];
+
   return (
     <nav className="sidebar">
       <div className="sidebar-logo">
@@ -29,16 +34,16 @@ export default function Sidebar() {
       ))}
       <div style={{ flex: 1 }} />
       <div style={{
-        padding: "0.75rem",
-        borderRadius: "var(--radius-sm)",
-        background: "var(--accent-glow)",
-        border: "1px solid rgba(167,139,250,0.15)",
-        fontSize: "0.75rem",
-        color: "var(--text-2)",
-        fontFamily: "var(--font-mono)",
+        padding: "0.75rem", borderRadius: "var(--radius-sm)",
+        background: "var(--accent-glow)", border: "1px solid rgba(248,113,113,0.15)",
+        fontSize: "0.75rem", color: "var(--text-2)", fontFamily: "var(--font-mono)",
+        display: "flex", alignItems: "center", justifyContent: "space-between"
       }}>
-        <div style={{ color: "var(--accent)", fontWeight: 600, marginBottom: "0.2rem" }}>● LIVE</div>
-        Backend connected
+        <div>
+          <div style={{ color: "var(--accent)", fontWeight: 600, marginBottom: "0.2rem" }}>● LIVE</div>
+          Backend connected
+        </div>
+        <UserButton />
       </div>
     </nav>
   );
